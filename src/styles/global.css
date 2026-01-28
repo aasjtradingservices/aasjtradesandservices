@@ -1,0 +1,33 @@
+@import './variables.css';
+*{box-sizing:border-box}
+body{font-family: Arial, sans-serif;color:var(--text);background:var(--green-50);margin:0;}
+header, nav{background:linear-gradient(#fff, var(--green-50));}
+.container{max-width:1200px;margin:0 auto;padding:20px;}
+.button{background:var(--green-500);color:#fff;padding:10px 16px;border-radius:6px;border:none;cursor:pointer;}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--card-shadow);padding:16px;margin-bottom:16px;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:600px){.grid{grid-template-columns:1fr;}}
+a{color:inherit;text-decoration:none}
+src/routes/ProtectedRoute.js
+
+import React, { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { auth } from '../firebase';
+
+export default function ProtectedRoute({ children }){
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(()=>{
+    const unsub = auth.onAuthStateChanged(u=>{
+      setUser(u);
+      setLoading(false);
+    });
+    return () => unsub();
+  },[]);
+
+  if(loading) return <div className="container">Loading...</div>;
+  if(!user) return <Navigate to="/" replace />;
+  return children;
+}
